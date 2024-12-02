@@ -14,6 +14,7 @@ export default function ToWater() {
 const styles = StyleSheet.create({
     container: {
       backgroundColor: 'rgba(232, 239, 225, 1)',
+      marginBottom: 60,
     }
   });
   
