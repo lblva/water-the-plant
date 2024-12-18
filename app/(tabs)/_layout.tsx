@@ -1,7 +1,6 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-
-import { TabBarIcon } from '@/components/navigation/TabBarIcon';
+import { Image } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
@@ -10,25 +9,51 @@ export default function TabLayout() {
 
   return (
     <Tabs
+    initialRouteName='(index)'
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: 'rgba(97, 141, 97, 1)',
         headerShown: false,
       }}>
       <Tabs.Screen
-        name="index"
+        name="(index)"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
+          tabBarIcon: ({ focused }) => (
+            <Image
+                source={
+                  focused
+                    ? require('@/assets/images/home-icon-focused.png') // Focused state image
+                    : require('@/assets/images/home-icon.png') // Unfocused state image
+                }
+                style={{
+                  width: 24,
+                  height: 24,
+                 // tintColor: color, // Optional: Apply the color dynamically
+                }}
+                resizeMode="contain"
+              />
           ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="(zllplants)"
         options={{
           title: 'All plants',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
+          
+          tabBarIcon: ({ focused }) => (
+            <Image
+                source={
+                  focused
+                    ? require('@/assets/images/allplants-icon-focused.png') // Focused state image
+                    : require('@/assets/images/allplants-icon.png') // Unfocused state image
+                }
+                style={{
+                  width: 24,
+                  height: 24,
+                 // tintColor: color, // Optional: Apply the color dynamically
+                }}
+                resizeMode="contain"
+              />
           ),
         }}
       />
