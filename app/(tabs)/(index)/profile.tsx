@@ -2,6 +2,7 @@ import { Image, StyleSheet, Text, View, TextInput } from 'react-native';
 import { Link } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import useUsers from '@/data/users';
+import LogoutButton from '@/components/logoutButton';
 
 
 export default function HomeScreen() {
@@ -48,7 +49,7 @@ export default function HomeScreen() {
         placeholderTextColor="gray"
       />
     </View>
-      
+      <LogoutButton />
     </SafeAreaView>
   );
 }

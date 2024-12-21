@@ -67,8 +67,8 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   details: {
-    fontSize: 15,
+    fontSize: 16,
     marginVertical: 2,
-    textAlign: 'justify', // Justify text horizontally
+    
   },
 });

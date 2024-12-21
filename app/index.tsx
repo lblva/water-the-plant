@@ -1,4 +1,4 @@
-import { Image, StyleSheet, TouchableOpacity, Alert, Text, Platform, } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity, Alert, Text, View, } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useThemeColor } from '@/hooks/useThemeColor'; 
@@ -59,9 +59,15 @@ export default function LoginScreen() {
 
 return (
     <SafeAreaView style={[styles.mainContainer,]}>
-        <TouchableOpacity onPress={() => handleGoogleLogin()}>
-            <ThemedText type="defaultSemiBold">LOGIN WITH GOOGLE</ThemedText>
-        </TouchableOpacity>
+        <Text style={styles.logo}>Water the plant</Text>
+        <Image source={require('@/assets/images/loginImage.png')} style={styles.loginImage} />
+        <Text style={styles.title1}>Your plants deserves the best</Text>
+        <Text style={styles.title2}>no more forgotten watering!</Text>
+        <View style={styles.buttonContainer}> 
+            <TouchableOpacity onPress={() => handleGoogleLogin()} style={styles.loginButton}>
+                <ThemedText type="defaultSemiBold">Login with Google</ThemedText>
+            </TouchableOpacity>
+        </View>
     </SafeAreaView>
   );
 }
@@ -75,5 +81,43 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     padding: 25, // Apply 15px padding to the entire screen
-  }
+  },
+    logo: {
+        fontSize: 24,
+        marginBottom: 20,
+        color: '#829470',
+        textAlign: 'center',
+        marginVertical: 10,
+        fontWeight: '600',
+    },
+    loginImage: {
+        height: 250,
+        width: 360,
+        alignSelf: 'center',
+        marginVertical: 70,
+    },
+    title1: {
+        fontSize: 24,
+        textAlign: 'center',
+        fontWeight: '600',
+    },
+    title2: {
+        fontSize: 20,
+        textAlign: 'center',
+        fontWeight: '600',
+        marginVertical: 5,
+    },
+    loginButton: {
+        backgroundColor: '#D5E3C6',
+        fontSize: 22,
+        padding: 15,
+        borderRadius: 10,
+        marginVertical: 20,
+        alignItems: 'center',
+        width: '70%',
+    },
+    buttonContainer: {
+        alignItems: 'center',
+        marginTop: 20,
+      },
 });
