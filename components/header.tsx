@@ -19,10 +19,13 @@ export default function Header(props: any) {
 
     console.log('User data:', userId);
     console.log('all User data:', props.data);
-  const id = userId ? JSON.parse(userId).id : null;
 
-  const user = props.data?.find((user: any) => user._id === id);
+    const id = userId ? JSON.parse(userId).id : null;
+    const user = props.data?.find((user: any) => user._id === id);
     const username = user?.name || 'User';
+    
+    const profilePicture = user?.profilePicture || 'https://via.placeholder.com/35'; // Fallback image
+
   return (
     <View style={styles.container}>
       <View style={styles.greetingContainer}>
@@ -32,10 +35,9 @@ export default function Header(props: any) {
         <Link href={`../profile/`}>
         <Image
           style={styles.profile}
-          source={require('../assets/images/profile.png')}
+          source={{ uri: profilePicture }}
         />
         </Link>
-        
       </View>
     </View>
   );
@@ -59,6 +61,7 @@ const styles = StyleSheet.create({
     profile: {
       width: 35,
       height: 35,
+      borderRadius: 50,
     }
   });
   
