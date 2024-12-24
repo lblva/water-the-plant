@@ -1,47 +1,42 @@
-import { Image, StyleSheet, Text, View, TextInput } from 'react-native';
+
+import { Image, StyleSheet, Text, View, TextInput, Button } from 'react-native';
 import { Link } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import useUsers from '@/data/users';
 import LogoutButton from '@/components/logoutButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
+import useUserGet from '@/data/user-get';
+import useUserPut from '@/data/user-put';
+import { useLocalSearchParams } from 'expo-router'
 
 export default function HomeScreen() {
-  const { data, isLoading, isError } = useUsers();
-  const [userId, setUserId] = useState<any>(''); // Initialize userId state
+  
+  const [email, setEmail] = useState<string>(''); // State for the email input ///  DEZE MAG MSS WEG
   const [user, setUser] = useState<any>(null);  // Initialize user state
-  const [name, setName] = useState<string>(''); // State for the name input
-  const [email, setEmail] = useState<string>(''); // State for the email input
 
-  // Fetch the userId from AsyncStorage
-  useEffect(() => {
-    const getUserId = async () => {
-      const user = await AsyncStorage.getItem('userId');
-      setUserId(user);
-    };
+  const params = useLocalSearchParams();
+  const { data, isLoading, isError } = useUserGet(params.userId);
+  const { trigger, isMutating } = useUserPut(params.userId);
+  const [name, setName] = useState('');
 
-    getUserId();
-  }, []);
-
-  // Find the user based on userId and set user
-  useEffect(() => {
-    if (data && userId) {
-      const id = JSON.parse(userId)?.id; // Make sure userId is parsed correctly
-      const foundUser = data.find((user: any) => user._id === id);
-      setUser(foundUser);
-      if (foundUser) {
-        setName(foundUser.name); // Set the name state
-        setEmail(foundUser.email); // Set the email state
-      }
+useEffect(() => {
+    if (data) {
+      setName(data.name);
     }
-  }, [data, userId]);
+  }, [data]);
 
-  if (isLoading || !user) {
-    return <Text>Loading...</Text>;
+  if (isMutating || isLoading || !data) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.container}>
+          <Text>Loading...</Text>
+        </View>
+      </SafeAreaView>
+    );
   }
 
   // Use the profile picture if available, otherwise use a fallback image
-  const profilePicture = user?.profilePicture || 'https://via.placeholder.com/35';
+  const profilePicture = data?.profilePicture || 'https://via.placeholder.com/35';
 
   return (
     <SafeAreaView style={styles.mainContainer}>
@@ -71,6 +66,7 @@ export default function HomeScreen() {
           value={name} // Bind the input value to the name state
           onChangeText={setName} // Update the state when the user types
         />
+         <Button title="Save" onPress={() => trigger({name})} />
       </View>
 
       <Text style={styles.inputTitle}>E-mail</Text>
@@ -83,8 +79,8 @@ export default function HomeScreen() {
           style={styles.input}
           placeholder="email"
           placeholderTextColor="gray"
-          value={email} // Bind the input value to the email state
-          onChangeText={setEmail} // Update the state when the user types
+          value={data.email} // Bind the input value to the email state
+          editable={false}
         />
       </View>
 
@@ -94,6 +90,15 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    backgroundColor:"#ccc",
+    flex: 1
+  },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   mainContainer: {
     flex: 1,
     backgroundColor: 'white',

@@ -9,7 +9,7 @@ import Header from '@/components/header';
 
 export default function HomeScreen() {
   const {data, isLoading, isError} = useUsers();
-  console.log(data);
+  console.log("homepage data", data);
   // Use the theme to set the background color dynamically
 
   if (isLoading && !data) {
