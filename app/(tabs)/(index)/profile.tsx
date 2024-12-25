@@ -1,4 +1,3 @@
-
 import { Image, StyleSheet, Text, View, TextInput, Button } from 'react-native';
 import { Link } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
