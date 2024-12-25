@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, Text, Image, SafeAreaView, ScrollView } from 'react-native';
+import { View, Text, Image, SafeAreaView, ScrollView, StyleSheet } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import useUserGet from '@/data/user-get';
 import usePlants from '@/data/plants';  // Your existing usePlants hook
@@ -51,15 +51,43 @@ export default function MyPlants() {
   }
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.container }>
       <ScrollView>
         {userPlants.map((plant) => (
-          <View key={plant._id} style={{ marginBottom: 20 }}>
-            <Text>{plant.name}</Text>
-            <Image source={{ uri: plant.image }} style={{ width: 100, height: 100 }} />
+          <View key={plant._id} style={styles.plantContainer}>
+            <Image source={{ uri: plant.image }} style={styles.image} />
+            <Text style={styles.plantTitle}>{plant.name}</Text>
           </View>
         ))}
       </ScrollView>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({ 
+  container: { 
+    flex: 1,  
+    marginBottom: 100,
+  }, 
+  plantTitle: { 
+    fontSize: 16, 
+    fontWeight: '600', 
+    marginLeft: 7,
+  },
+  plantContainer: { 
+    flexDirection: 'row',
+    justifyContent: 'flex-start',  // Ensures items are aligned at the top vertically
+    alignItems: 'flex-start',      // Aligns the text at the top along the cross axis
+    padding: 10,
+    paddingVertical: 15,
+    marginBottom: 10,
+    backgroundColor: '#E8EFE1',
+    borderRadius: 8,
+  },
+  image: { 
+    width: 80, 
+    height: 80, 
+    borderRadius: 5, 
+    marginRight: 10 
+  },
+});

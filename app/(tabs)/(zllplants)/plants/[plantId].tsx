@@ -4,6 +4,8 @@ import usePlants from '@/data/plants';
 import { useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '@/constants/Api';
+import useSWR, { mutate } from 'swr'; // Import mutate from swr
+
 
 // Define the types for the plant data
 type Plant = {
@@ -74,6 +76,9 @@ export default function PlantDetail() {
       if (response.ok) {
         setModalVisible(false); // Hide modal on success
         Alert.alert('Success', 'Plant saved successfully!');
+
+        // Trigger the user data refresh by calling mutate
+        mutate(`${API_URL}/users/${userId}`); // This will re-fetch the user data
       } else {
         const errorData = JSON.parse(responseText);
         Alert.alert('Error', `Failed to save the plant. ${errorData.message || ''}`);
