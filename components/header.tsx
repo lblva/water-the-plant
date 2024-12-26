@@ -28,8 +28,8 @@ export default function Header(props: any) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.greetingContainer}>
-        <ThemedText type="defaultSemiBold">Good morning, {username}</ThemedText>
+      <View>
+        <ThemedText style={styles.title}>Good morning, {username}</ThemedText>
       </View>
       <View style={styles.profileContainer}>
         <Link href={`../profile/`}>
@@ -50,10 +50,11 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center'
     },
-    
-    greetingContainer: {
-      backgroundColor: 'rgba(232, 239, 225, 1)'
+    title: {
+        fontSize: 20,
+        fontWeight: '600',
     },
+    
     profileContainer: {
         backgroundColor: 'rgb(255, 255, 255)'
       },

@@ -91,18 +91,22 @@ export default function PlantDetail() {
   };
 
   // Function to log the watering action
-  const logWatering = async (days: number) => { // Specify 'days' as a number
+  const logWatering = async (days: number) => {
     if (!userId) {
       Alert.alert('Error', 'User not found. Please log in.');
       return;
     }
-
-    // Calculate the correct date for the "days ago" logic
+  
     const currentDate = new Date();
-    currentDate.setDate(currentDate.getDate() - days); // Adjust date by the number of days
-
-    const logDate = currentDate.toISOString(); // Convert to ISO format for consistency
-
+    
+    if (days !== 0) {
+      currentDate.setDate(currentDate.getDate() - days);
+    }
+  
+    const logDate = currentDate.toISOString();  // ISO string to be sent to backend
+  
+    console.log('Request Body:', { days, plantId: plant._id, user: userId, logDate }); // Check data
+  
     try {
       const response = await fetch(`${API_URL}/logs`, {
         method: 'POST',
@@ -110,29 +114,29 @@ export default function PlantDetail() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          days: days,            // Number of days ago
-          plantId: plant._id,    // Plant ID
-          user: userId,          // User ID
-          logDate: logDate       // Actual date when the watering took place
+          days,
+          plantId: plant._id,
+          user: userId,
         }),
       });
-
+  
       const responseText = await response.text();
-      console.log('Response Text:', responseText); // Log the response body
-
+      console.log('Response:', responseText); 
+  
       if (response.ok) {
         console.log(`Logged ${days} days for plant ${plant.name}`);
-        savePlantToUser(); // Save the plant after logging the watering
+        savePlantToUser();
       } else {
         const errorData = JSON.parse(responseText);
-        console.error('Error Data:', errorData); // Log the error details
         Alert.alert('Error', `Failed to log watering. ${errorData.message || ''}`);
       }
     } catch (error) {
-      console.error('Request Error:', (error as Error).message); // Cast the error as an Error object
       Alert.alert('Error', `An error occurred while logging watering. ${(error as Error).message}`);
     }
   };
+  
+  
+  
 
   // Handle save plant click (only opens modal, doesn't save plant yet)
   const handleSavePlantClick = () => {

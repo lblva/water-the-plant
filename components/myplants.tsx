@@ -114,7 +114,7 @@ export default function MyPlants() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView>
+      <ScrollView style={styles.listContainer}>
         {userPlants.map((plant) => (
           <View key={plant._id} style={styles.plantContainer}>
             <Image source={{ uri: plant.image }} style={styles.image} />
@@ -162,7 +162,7 @@ export default function MyPlants() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    marginTop: 20,
     marginBottom: 100,
   },
   titleButtonContainer: {
@@ -179,6 +179,9 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     marginRight: 3,
+  },
+  listContainer: {
+    marginBottom: 160,
   },
   plantTitle: {
     fontSize: 16,
