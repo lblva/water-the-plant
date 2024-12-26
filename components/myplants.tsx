@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, Text, Image, SafeAreaView, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, Image, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import useUserGet from '@/data/user-get';
 import usePlants from '@/data/plants';  // Your existing usePlants hook
@@ -19,7 +19,7 @@ export default function MyPlants() {
   useEffect(() => {
     if (userData && allPlants) {
       // Filter the allPlants data based on the user.plants array
-      const filteredPlants = allPlants.filter((plant) =>
+      const filteredPlants = allPlants.filter((plant: any) =>
         userData.plants.includes(plant._id)
       );
       setUserPlants(filteredPlants);
@@ -52,6 +52,12 @@ export default function MyPlants() {
 
   return (
     <SafeAreaView style={styles.container }>
+      <View style={styles.titleButtonContainer}>
+        <Text style={styles.title}>My Plants</Text>
+        <TouchableOpacity onPress={() => console.log('when i press it, a modal should pop up')}>
+        <Image source={require('@/assets/images/edit_icon.png')} style={styles.edit} />
+        </TouchableOpacity>
+      </View>
       <ScrollView>
         {userPlants.map((plant) => (
           <View key={plant._id} style={styles.plantContainer}>
@@ -65,6 +71,21 @@ export default function MyPlants() {
 }
 
 const styles = StyleSheet.create({ 
+  titleButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingBottom: 13,
+  },
+  title: { 
+    fontSize: 18, 
+    fontWeight: '600', 
+  },
+  edit: { 
+    width: 30, 
+    height: 30, 
+    marginRight: 3
+  },
   container: { 
     flex: 1,  
     marginBottom: 100,
