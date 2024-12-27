@@ -25,7 +25,7 @@ export default function IndexTabLayout() {
 
   return (
       <Stack>
-        <Stack.Screen name="index" initialParams={{ userId }} options={{ headerShown: false }} />
+        <Stack.Screen name="index" initialParams={{ userId }} options={{ headerShown: false, animation: 'none' }} />
         <Stack.Screen name="profile" initialParams={{ userId }} options={{ headerShown: false }} />
       </Stack>
   );
