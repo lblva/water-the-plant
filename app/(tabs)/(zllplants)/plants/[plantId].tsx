@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { StyleSheet, Text, Image, ScrollView, Modal, View, TouchableOpacity, Alert } from 'react-native';
 import usePlants from '@/data/plants';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router'; // Import useRouter
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '@/constants/Api';
 import useSWR, { mutate } from 'swr'; // Import mutate from swr
-
 
 // Define the types for the plant data
 type Plant = {
@@ -21,9 +20,11 @@ type Plant = {
 export default function PlantDetail() {
   const { plantId } = useLocalSearchParams();
   const { data, isLoading, isError } = usePlants();
-  const [userId, setUserId] = useState<string | null>(null); // Updated to type string | null
+  const [userId, setUserId] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const router = useRouter(); // Use the router hook
 
   useEffect(() => {
     const getUserId = async () => {
@@ -35,6 +36,13 @@ export default function PlantDetail() {
     };
     getUserId();
   }, []);
+
+  useEffect(() => {
+    if (isSaved) {
+      router.push('/(tabs)/(zllplants)/' as any);
+
+    }
+  }, [isSaved, router]);
 
   if (isLoading) {
     return <Text>Loading...</Text>;
@@ -74,11 +82,10 @@ export default function PlantDetail() {
       console.log('Response:', responseText);
 
       if (response.ok) {
-        setModalVisible(false); // Hide modal on success
+        setModalVisible(false);
         Alert.alert('Success', 'Plant saved successfully!');
-
-        // Trigger the user data refresh by calling mutate
-        mutate(`${API_URL}/users/${userId}`); // This will re-fetch the user data
+        mutate(`${API_URL}/users/${userId}`);
+        setIsSaved(true);
       } else {
         const errorData = JSON.parse(responseText);
         Alert.alert('Error', `Failed to save the plant. ${errorData.message || ''}`);
@@ -96,17 +103,16 @@ export default function PlantDetail() {
       Alert.alert('Error', 'User not found. Please log in.');
       return;
     }
-  
+
     const currentDate = new Date();
-    
     if (days !== 0) {
       currentDate.setDate(currentDate.getDate() - days);
     }
-  
-    const logDate = currentDate.toISOString();  // ISO string to be sent to backend
-  
-    console.log('Request Body:', { days, plantId: plant._id, user: userId, logDate }); // Check data
-  
+
+    const logDate = currentDate.toISOString();
+
+    console.log('Request Body:', { days, plantId: plant._id, user: userId, logDate });
+
     try {
       const response = await fetch(`${API_URL}/logs`, {
         method: 'POST',
@@ -119,10 +125,10 @@ export default function PlantDetail() {
           user: userId,
         }),
       });
-  
+
       const responseText = await response.text();
-      console.log('Response:', responseText); 
-  
+      console.log('Response:', responseText);
+
       if (response.ok) {
         console.log(`Logged ${days} days for plant ${plant.name}`);
         savePlantToUser();
@@ -134,11 +140,7 @@ export default function PlantDetail() {
       Alert.alert('Error', `An error occurred while logging watering. ${(error as Error).message}`);
     }
   };
-  
-  
-  
 
-  // Handle save plant click (only opens modal, doesn't save plant yet)
   const handleSavePlantClick = () => {
     setModalVisible(true);
   };
@@ -157,11 +159,7 @@ export default function PlantDetail() {
       <Text style={styles.details}>{plant.potting}</Text>
 
       {/* Save Plant Button */}
-      <TouchableOpacity
-        style={styles.saveButton}
-        onPress={handleSavePlantClick}
-        disabled={saving}
-      >
+      <TouchableOpacity style={styles.saveButton} onPress={handleSavePlantClick} disabled={saving}>
         <Text style={styles.saveButtonText}>Save Plant</Text>
       </TouchableOpacity>
 
@@ -224,7 +222,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginVertical: 2,
   },
-  // Save button style
   saveButton: {
     backgroundColor: '#007BFF',
     paddingVertical: 12,
@@ -237,12 +234,11 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
   },
-  // Modal styles
   modalOverlay: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Half transparent background
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
     backgroundColor: 'white',

@@ -4,8 +4,10 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { useLocalSearchParams } from 'expo-router';
 import useUserGet from '@/data/user-get';
 import usePlants from '@/data/plants'; 
-import useToWater from '@/data/logs-toWater';
+import useToWater from '@/data/log-get';
 import useLogs from '@/data/log-post'; 
+import useSWR, { mutate } from 'swr';  // import mutate from SWR
+import { API_URL } from '@/constants/Api';
 
 type Plant = {
   _id: string;
@@ -16,13 +18,14 @@ export default function ToWater() {
   const params = useLocalSearchParams();
   const { data: userData, isLoading: userLoading, isError: userError } = useUserGet(params.userId);
   const { data: allPlants, isLoading: plantsLoading, isError: plantsError } = usePlants();
-  const { data: toWaterData, isLoading: toWaterLoading, isError: toWaterError } = useToWater(params.userId);
+  const { data: toWaterData, isError, isLoading: toWaterLoading, isError: toWaterError } = useToWater(params.userId);
   const { logData } = useLogs();  // Get logData function from useLogs
   const [userPlants, setUserPlants] = useState<Plant[]>([]);
   const [toWaterMap, setToWaterMap] = useState<Record<string, string>>({});
   const [selectedPlant, setSelectedPlant] = useState<string | null>(null); // Tracks plant for modal confirmation
   const [modalVisible, setModalVisible] = useState(false);
 
+  // Filters all plants to include only those associated with the current user (userData.plants) and updates userPlants.
   useEffect(() => {
     if (userData && allPlants) {
       const filteredPlants = allPlants.filter((plant: any) =>
@@ -32,6 +35,7 @@ export default function ToWater() {
     }
   }, [userData, allPlants]);
 
+  // Manually update the toWaterMap whenever toWaterData changes
   useEffect(() => {
     if (toWaterData) {
       const formattedData = toWaterData.reduce((acc: any, item: any) => {
@@ -42,6 +46,14 @@ export default function ToWater() {
     }
   }, [toWaterData]);
 
+  // Re-fetch toWaterData when user or plants change by triggering mutate
+  useEffect(() => {
+    if (userData && allPlants) {
+      mutate(`${API_URL}/logs/user/${params.userId}/to-water`);
+    }
+  }, [userData, allPlants]);
+
+  // Calculates the number of days until the next watering date. Computes the difference (in days) between the current date (now) and the nextWateringDate.
   const calculateDaysUntilWatering = (nextWateringDate: any) => {
     const now = new Date();
     const wateringDate = new Date(nextWateringDate);
@@ -49,11 +61,13 @@ export default function ToWater() {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
+  // Event Handler, Updates selectedPlant and opens the confirmation modal when a plant is selected.
   const handleSelectPlant = (plantId: string) => {
     setSelectedPlant(plantId);
     setModalVisible(true);
   };
 
+  // Event Handler, Posts a log marking the plant as watered, Updates toWaterMap to mark the plant as "watered" in the UI and closes the modal.
   const confirmWatering = async () => {
     if (!selectedPlant || !params.userId) return;
   
@@ -66,13 +80,14 @@ export default function ToWater() {
         ...prev,
         [selectedPlant]: "watered", // Set the selected plant as watered
       }));
+      
+      // Don't reset selectedPlant until the state is updated
+      setModalVisible(false);  // Close the modal only after updating the state
     } catch (error) {
       console.error('Error logging watering:', error);
     }
-  
-    setModalVisible(false);
-    setSelectedPlant(null);
   };
+  
 
   return (
     <SafeAreaView style={styles.container}>
@@ -86,7 +101,7 @@ export default function ToWater() {
             <TouchableOpacity
               style={[styles.circle, toWaterMap[plant._id] === "watered" && styles.disabledCircle]}
               onPress={() => handleSelectPlant(plant._id)}
-              disabled={toWaterMap[plant._id] === "watered"} // Disable if already watered
+              disabled={toWaterMap[plant._id] === "watered"} // Disable if watered
             >
               {toWaterMap[plant._id] === "watered" ? (
                 <Icon name="check" size={20} color="#4CAF50" />
@@ -97,9 +112,7 @@ export default function ToWater() {
             <Text style={styles.toWaterText}>
               {toWaterMap[plant._id] === "watered"
                 ? "Watered"
-                : `Water in ${toWaterMap[plant._id]
-                    ? calculateDaysUntilWatering(toWaterMap[plant._id])
-                    : "unknown"} days`}
+                : `Water in ${calculateDaysUntilWatering(toWaterMap[plant._id])} days`}
             </Text>
             <Text style={styles.plantTitle}>{plant.name}</Text>
           </View>
