@@ -21,7 +21,7 @@ export default function ToWater() {
   const { data: toWaterData, isError, isLoading: toWaterLoading, isError: toWaterError } = useToWater(params.userId);
   const { logData } = useLogs();  // Get logData function from useLogs
   const [userPlants, setUserPlants] = useState<Plant[]>([]);
-  const [toWaterMap, setToWaterMap] = useState<Record<string, string>>({});
+  const [toWaterMap, setToWaterMap] = useState<Record<string, { isWatered: boolean, nextWateringDate: string }>>({});
   const [selectedPlant, setSelectedPlant] = useState<string | null>(null); // Tracks plant for modal confirmation
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -38,11 +38,14 @@ export default function ToWater() {
   // Manually update the toWaterMap whenever toWaterData changes
   useEffect(() => {
     if (toWaterData) {
-      const formattedData = toWaterData.reduce((acc: any, item: any) => {
-        acc[item.plantId] = item.nextWateringDate;
-        return acc;
-      }, {});
-      setToWaterMap(formattedData);
+        const formattedData = toWaterData.reduce((acc: any, item: any) => {
+            acc[item.plantId] = {
+                isWatered: item.isWatered,
+                nextWateringDate: item.nextWateringDate,  // Store the date here
+            };
+            return acc;
+        }, {});
+        setToWaterMap(formattedData);
     }
   }, [toWaterData]);
 
@@ -54,11 +57,11 @@ export default function ToWater() {
   }, [userData, allPlants]);
 
   // Calculates the number of days until the next watering date. Computes the difference (in days) between the current date (now) and the nextWateringDate.
-  const calculateDaysUntilWatering = (nextWateringDate: any) => {
+  const calculateDaysUntilWatering = (nextWateringDate: string) => {
     const now = new Date();
     const wateringDate = new Date(nextWateringDate);
     const diffTime = wateringDate.getTime() - now.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));  // Returns days until watering
   };
 
   // Event Handler, Updates selectedPlant and opens the confirmation modal when a plant is selected.
@@ -67,27 +70,40 @@ export default function ToWater() {
     setModalVisible(true);
   };
 
-  // Event Handler, Posts a log marking the plant as watered, Updates toWaterMap to mark the plant as "watered" in the UI and closes the modal.
   const confirmWatering = async () => {
     if (!selectedPlant || !params.userId) return;
-  
+
+    // Optimistically update the state to reflect the "watered" status
+    setToWaterMap((prev) => ({
+      ...prev,
+      [selectedPlant]: {
+        ...prev[selectedPlant],
+        isWatered: true, // Mark the selected plant as watered
+      },
+    }));
+
     // Log the watering action after confirmation
     try {
       await logData(0, selectedPlant, params.userId);  // Log watering action with 0 days (watered today)
-  
-      // Update only the selected plant's status to "watered"
-      setToWaterMap((prev) => ({
-        ...prev,
-        [selectedPlant]: "watered", // Set the selected plant as watered
-      }));
       
-      // Don't reset selectedPlant until the state is updated
-      setModalVisible(false);  // Close the modal only after updating the state
+      // Use mutate to trigger a refetch or re-sync the data if necessary
+      mutate(`${API_URL}/logs/user/${params.userId}/to-water`);
+      
+      // Close the modal after updating the state
+      setModalVisible(false);
     } catch (error) {
       console.error('Error logging watering:', error);
+
+      // Revert the state change in case of an error
+      setToWaterMap((prev) => ({
+        ...prev,
+        [selectedPlant]: {
+          ...prev[selectedPlant],
+          isWatered: false, // Or any fallback state
+        },
+      }));
     }
   };
-  
 
   return (
     <SafeAreaView style={styles.container}>
@@ -99,20 +115,23 @@ export default function ToWater() {
         {userPlants.map((plant) => (
           <View key={plant._id} style={styles.plantContainer}>
             <TouchableOpacity
-              style={[styles.circle, toWaterMap[plant._id] === "watered" && styles.disabledCircle]}
+              style={[
+                styles.circle,
+                toWaterMap[plant._id]?.isWatered && styles.disabledCircle,
+              ]}
               onPress={() => handleSelectPlant(plant._id)}
-              disabled={toWaterMap[plant._id] === "watered"} // Disable if watered
+              disabled={toWaterMap[plant._id]?.isWatered} // Disable if watered
             >
-              {toWaterMap[plant._id] === "watered" ? (
+              {toWaterMap[plant._id]?.isWatered ? (
                 <Icon name="check" size={20} color="#4CAF50" />
               ) : (
                 ""
               )}
             </TouchableOpacity>
             <Text style={styles.toWaterText}>
-              {toWaterMap[plant._id] === "watered"
+              {toWaterMap[plant._id]?.isWatered
                 ? "Watered"
-                : `Water in ${calculateDaysUntilWatering(toWaterMap[plant._id])} days`}
+                : `Water in ${calculateDaysUntilWatering(toWaterMap[plant._id]?.nextWateringDate)} days`}
             </Text>
             <Text style={styles.plantTitle}>{plant.name}</Text>
           </View>
