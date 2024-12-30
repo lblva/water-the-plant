@@ -50,16 +50,38 @@ export default function ToWater() {
   }, [toWaterData]);
 
   // Re-fetch toWaterData when user or plants change by triggering mutate
+  
   useEffect(() => {
-    if (userData && allPlants) {
-      mutate(`${API_URL}/logs/user/${params.userId}/to-water`);
-    }
-  }, [userData, allPlants]);
+  if (userData && allPlants) {
+    mutate(`${API_URL}/logs/user/${params.userId}/to-water`);
+    const filteredPlants = allPlants.filter((plant: any) =>
+      userData.plants.includes(plant._id)
+    );
+
+    const sortedPlants = filteredPlants.sort((a: any, b: any) => {
+      const aToWater = toWaterMap[a._id];
+      const bToWater = toWaterMap[b._id];
+
+      // Handle "watered" plants
+      if (aToWater?.isWatered && !bToWater?.isWatered) return -1;
+      if (!aToWater?.isWatered && bToWater?.isWatered) return 1;
+
+      // Handle sorting by days until watering
+      const aDays = calculateDaysUntilWatering(aToWater?.nextWateringDate || '');
+      const bDays = calculateDaysUntilWatering(bToWater?.nextWateringDate || '');
+      return aDays - bDays;
+    });
+
+    setUserPlants(sortedPlants);
+  }
+}, [userData, allPlants, toWaterMap]);
+
 
   // Calculates the number of days until the next watering date. Computes the difference (in days) between the current date (now) and the nextWateringDate.
   const calculateDaysUntilWatering = (nextWateringDate: string) => {
     const now = new Date();
     const wateringDate = new Date(nextWateringDate);
+    console.log("wateringdate en now date", wateringDate, now);
     const diffTime = wateringDate.getTime() - now.getTime();
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));  // Returns days until watering
   };

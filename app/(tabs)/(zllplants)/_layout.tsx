@@ -24,8 +24,8 @@ export default function Plants() {
 
   return (
     <Stack>
-      <Stack.Screen name="index" initialParams={{ userId }} options={{ headerShown: false }} />
-      <Stack.Screen name="/plants/[plantId]" initialParams={{ userId }} options={{ headerShown: false }} />
+      <Stack.Screen name="index"  initialParams={{ userId }} options={{ title: 'all plants', headerShown: false }} />
+      <Stack.Screen name="plant details" initialParams={{ userId }} options={{ title: 'plant details', headerShown: false }} />
     </Stack>
   );
 }
