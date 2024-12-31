@@ -117,7 +117,7 @@ export default function MyPlants() {
                     style={styles.selectButton}>
                     <Image source={{ uri: plant.image }} style={styles.image} />
                     <Text style={styles.plantTitle}>{plant.name}</Text>
-                    <Text style={styles.plantTitle}>
+                    <Text style={styles.selectText}>
                       {selectedPlants.includes(plant._id) ? 'Selected' : 'Not Selected'}
                     </Text>
                   </TouchableOpacity>
@@ -147,10 +147,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginHorizontal: 20,
+    marginHorizontal: 10,
   },
   title: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: 'bold',
   },
   edit: {
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 10,
-    marginHorizontal: 20,
+    marginHorizontal: 10,
   },
   image: {
     width: 50,
@@ -177,19 +177,22 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end', // Position content at the bottom
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Make the rest of the screen transparent
   },
   modalContent: {
-    width: '80%',
+    width: '100%',
+    height: '80%', // Adjust this height as needed
     backgroundColor: '#fff',
     padding: 20,
-    borderRadius: 8,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
   },
+  
   modalTitle: {
     fontSize: 20,
-    marginBottom: 10,
+    marginTop: 10,
+    marginBottom: 20,
     fontWeight: 'bold',
   },
   plantItem: {
@@ -198,13 +201,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: 10,
   },
+  circle: {
+    width: 35,
+    height: 35,
+    borderRadius: 20,
+    backgroundColor: '#fff',
+    marginTop: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  disabledCircle: {
+    backgroundColor: '#ccc',
+  },
   selectButton: {
     flexDirection: 'row',
     alignItems: 'center',
   },
+  selectText: {
+    marginLeft: 10,
+  },
   deleteButton: {
     backgroundColor: '#f44336',
-    padding: 10,
+    padding: 13,
     borderRadius: 8,
     marginTop: 20,
     alignItems: 'center',
@@ -214,7 +232,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   closeButton: {
+    backgroundColor: '#F1F0F0',
+    padding: 13,
+    borderRadius: 8,
     marginTop: 10,
+    marginBottom: 25,
     alignItems: 'center',
   },
   closeButtonText: {
