@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { View, Text, Image, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, Modal, Alert } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
 import useUserGet from '@/data/user-get';
 import usePlants from '@/data/plants'; // Your existing usePlants hook
@@ -110,19 +111,38 @@ export default function MyPlants() {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Select plants to delete</Text>
             <ScrollView>
-              {userPlants.map((plant) => (
-                <View key={plant._id} style={styles.plantItem}>
-                  <TouchableOpacity onPress={() => setSelectedPlants((prev) => 
-                    prev.includes(plant._id) ? prev.filter((id) => id !== plant._id) : [...prev, plant._id])} 
-                    style={styles.selectButton}>
-                    <Image source={{ uri: plant.image }} style={styles.image} />
-                    <Text style={styles.plantTitle}>{plant.name}</Text>
-                    <Text style={styles.selectText}>
-                      {selectedPlants.includes(plant._id) ? 'Selected' : 'Not Selected'}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
+            {userPlants.map((plant) => (
+            <View key={plant._id} style={styles.plantItem}>
+              <TouchableOpacity
+                onPress={() =>
+                  setSelectedPlants((prev) =>
+                    prev.includes(plant._id)
+                      ? prev.filter((id) => id !== plant._id)
+                      : [...prev, plant._id]
+                  )
+                }
+                style={styles.selectButton}
+              >
+                <Image source={{ uri: plant.image }} style={styles.image} />
+                <Text style={styles.plantTitle}>{plant.name}</Text>
+              </TouchableOpacity>
+
+              {/* Circle with icon */}
+              <TouchableOpacity
+                style={[styles.circle, selectedPlants.includes(plant._id) && styles.disabledCircle]}
+                onPress={() => setSelectedPlants((prev) =>
+                  prev.includes(plant._id) ? prev.filter((id) => id !== plant._id) : [...prev, plant._id]
+                )}
+              >
+                <Icon
+                  name={selectedPlants.includes(plant._id) ? "check" : "circle-o"}
+                  size={20}
+                  color={selectedPlants.includes(plant._id) ? "#4CAF50" : "#ccc"}
+                />
+              </TouchableOpacity>
+            </View>
+          ))}
+
             </ScrollView>
             <TouchableOpacity style={styles.deleteButton} onPress={handleDeletePlants}>
               <Text style={styles.deleteButtonText}>Delete Selected Plants</Text>

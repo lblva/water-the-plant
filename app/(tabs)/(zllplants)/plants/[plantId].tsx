@@ -5,6 +5,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router'; // Import useRout
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '@/constants/Api';
 import useSWR, { mutate } from 'swr'; // Import mutate from swr
+import { useNavigation } from 'expo-router';
+
 
 // Define the types for the plant data
 type Plant = {
@@ -25,7 +27,12 @@ export default function PlantDetail() {
   const [saving, setSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const router = useRouter(); // Use the router hook
+  const navigation = useNavigation();
 
+  useEffect(() => {
+    navigation.setOptions({ title: 'Plant Details' });
+  }, [navigation]);
+  
   useEffect(() => {
     const getUserId = async () => {
       const user = await AsyncStorage.getItem('userId');
@@ -39,10 +46,10 @@ export default function PlantDetail() {
 
   useEffect(() => {
     if (isSaved) {
-      router.push('/(tabs)/(zllplants)/' as any);
-
+      router.replace('/(tabs)/(zllplants)');
     }
   }, [isSaved, router]);
+  
 
   if (isLoading) {
     return <Text>Loading...</Text>;
@@ -159,10 +166,11 @@ export default function PlantDetail() {
       <Text style={styles.details}>{plant.potting}</Text>
 
       {/* Save Plant Button */}
-      <TouchableOpacity style={styles.saveButton} onPress={handleSavePlantClick} disabled={saving}>
-        <Text style={styles.saveButtonText}>Save Plant</Text>
-      </TouchableOpacity>
-
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.saveButton} onPress={handleSavePlantClick} disabled={saving}>
+          <Text style={styles.saveButtonText}>Save Plant</Text>
+        </TouchableOpacity>
+      </View>
       {/* Modal for the overlay effect */}
       <Modal
         animationType="slide"
@@ -172,9 +180,12 @@ export default function PlantDetail() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Plant Saved!</Text>
-            <Text style={styles.modalSubtitle}>Choose your next action:</Text>
-
+          <View style={styles.modalHeader}>
+            <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
+              <Image source={require('@/assets/images/close-icon.png')} style={styles.icon} />
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>When did you last water it?</Text>
+            </View>
             <TouchableOpacity style={styles.modalButton} onPress={() => logWatering(0)}>
               <Text style={styles.modalButtonText}>Today</Text>
             </TouchableOpacity>
@@ -198,6 +209,7 @@ export default function PlantDetail() {
 }
 
 const styles = StyleSheet.create({
+
   container: {
     padding: 20,
     backgroundColor: 'white',
@@ -222,51 +234,78 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginVertical: 2,
   },
+  buttonContainer: {
+    alignItems: 'center',
+    marginVertical: 15,
+  },  
   saveButton: {
-    backgroundColor: '#007BFF',
+    backgroundColor: '#D5E3C6',
     paddingVertical: 12,
     paddingHorizontal: 20,
     marginVertical: 20,
     borderRadius: 5,
     alignItems: 'center',
+    width: 180,
   },
   saveButtonText: {
-    color: 'white',
+    color: 'black',
     fontSize: 16,
   },
   modalOverlay: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
+    width: '100%',
+    height: '70%',
     backgroundColor: 'white',
     padding: 20,
-    borderRadius: 10,
-    width: '80%',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
     alignItems: 'center',
   },
-  modalTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  modalSubtitle: {
-    fontSize: 16,
+    modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 20,
+    width: '100%',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 0,
+    left: 5,
+    width: 40, // Increase the touchable area even more
+    height: 40, // Make the touchable area larger
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1, // Ensure it's on top of other elements
+    padding: 10, // Add padding around the icon for easier tapping
+  },
+  icon: {
+    width: 20, // Keep the icon the same size
+    height: 20, // Keep the icon the same size
+  },
+  modalTitle: {
+    fontSize: 18,
+    marginTop: 10,
+    fontWeight: '600',
+    textAlign: 'center',
+    flex: 1, // Let the title take the remaining space
   },
   modalButton: {
-    backgroundColor: '#007BFF',
+    backgroundColor: '#D5E3C6',
     paddingVertical: 12,
     paddingHorizontal: 20,
     marginVertical: 5,
     borderRadius: 5,
-    width: '100%',
+    width: '80%',
     alignItems: 'center',
   },
   modalButtonText: {
-    color: 'white',
+    color: 'black',
     fontSize: 16,
   },
 });

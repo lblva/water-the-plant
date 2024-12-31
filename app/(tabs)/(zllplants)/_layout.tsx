@@ -23,7 +23,10 @@ export default function Plants() {
 
 
   return (
-    <Stack>
+    <Stack screenOptions={{
+      headerTintColor: 'black',  // Set the color of the title
+      headerTitleStyle: { fontSize: 18 },  // Adjust the title style (optional)
+    }}>
       <Stack.Screen name="index"  initialParams={{ userId }} options={{ title: 'all plants', headerShown: false }} />
       <Stack.Screen name="plant details" initialParams={{ userId }} options={{ title: 'plant details', headerShown: false }} />
     </Stack>

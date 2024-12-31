@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, View, TextInput, Button } from 'react-native';
+import { Image, StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
 import { Link } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LogoutButton from '@/components/logoutButton';
@@ -65,7 +65,9 @@ useEffect(() => {
           value={name} // Bind the input value to the name state
           onChangeText={setName} // Update the state when the user types
         />
-         <Button title="Save" onPress={() => trigger({name})} />
+    <TouchableOpacity style={styles.button} onPress={() => trigger({ name })}>
+      <Text style={styles.buttonText}>Save</Text>
+    </TouchableOpacity>
       </View>
 
       <Text style={styles.inputTitle}>E-mail</Text>
@@ -134,7 +136,7 @@ const styles = StyleSheet.create({
     height: 40,
     borderColor: '#E8E8E8',
     borderRadius: 5,
-    paddingHorizontal: 10,
+    paddingLeft: 10,
     marginVertical: 7,
     backgroundColor: '#fff',
   },
@@ -145,6 +147,16 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
+    fontSize: 16,
+    color: 'black',
+  },
+  button: {
+    backgroundColor: 'rgba(191, 191, 191, 0.26)',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+  },
+  buttonText: {
     fontSize: 16,
     color: 'black',
   },
